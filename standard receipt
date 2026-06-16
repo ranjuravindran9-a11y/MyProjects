@@ -1,0 +1,64 @@
+using System;
+using System.Globalization;
+using System.IO;
+using System.Text;
+
+class Program
+{
+    static void Main()
+    {
+        GenerateReceiptText(
+            filePath: "Receipt.txt",
+            orderNumber: "ORD-20260616-001",
+            customerName: "John Smith",
+            currency: "USD",
+            paymentMethod: "Credit Card",
+            paymentStatus: "Paid",
+            subtotal: 100.00m,
+            taxRate: 10.0m
+        );
+
+        Console.WriteLine("Receipt generated successfully.");
+    }
+
+    static void GenerateReceiptText(
+        string filePath,
+        string orderNumber,
+        string customerName,
+        string currency,
+        string paymentMethod,
+        string paymentStatus,
+        decimal subtotal,
+        decimal taxRate)
+    {
+        decimal taxAmount = subtotal * taxRate / 100m;
+        decimal grandTotal = subtotal + taxAmount;
+
+        var sb = new StringBuilder();
+        sb.AppendLine("PAYMENT RECEIPT");
+        sb.AppendLine();
+        sb.AppendLine("Receipt Date: " + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss UTC"));
+        sb.AppendLine("Order Number: " + orderNumber);
+        sb.AppendLine("Customer: " + customerName);
+        sb.AppendLine("Currency: " + currency);
+        sb.AppendLine();
+        sb.AppendLine("Payment Information");
+        sb.AppendLine("Payment Method: " + paymentMethod);
+        sb.AppendLine("Payment Status: " + paymentStatus);
+        sb.AppendLine();
+        sb.AppendLine("Order Summary");
+        sb.AppendLine("Subtotal: " + FormatMoney(subtotal, currency));
+        sb.AppendLine("Tax (" + taxRate.ToString("0.##") + "%): " + FormatMoney(taxAmount, currency));
+        sb.AppendLine("Grand Total: " + FormatMoney(grandTotal, currency));
+        sb.AppendLine();
+        sb.AppendLine("Thank you for your purchase.");
+        sb.AppendLine("This receipt serves as proof of payment.");
+
+        File.WriteAllText(filePath, sb.ToString());
+    }
+
+    static string FormatMoney(decimal amount, string currency)
+    {
+        return string.Format(CultureInfo.InvariantCulture, "{0} {1:N2}", currency, amount);
+    }
+}
